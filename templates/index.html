@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <title>AirNIC</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Cantarell"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+</head>
+
+<body>
+<div class="banner">
+    <nav>
+        <a href="/">AirNIC Logo</a>
+        <div>
+            <a href="/">Home</a>
+        </div>
+    </nav>
+
+    <div class="text">
+        <h1><a href="/">AirNIC</a></h1>
+        {% if not register %}
+        <p>The open registry for Amateur Radio internet services</p>
+        <form class="{{ '' if (results or error) else ' round' }}" action="/" method="POST">
+            <input type="text" name="query" placeholder="Search..."><input type="submit" value="Search">
+        </form>
+        {% else %}
+        <p>Registering <u>{{ register }}</u></p>
+        <form class="round" method="POST">
+            <input type="email" name="email" placeholder="Email">
+            <br><br>
+            <input type="text" name="nameservers" placeholder="Nameservers (comma separated)"><input type="submit" value="Register">
+        </form>
+        {% endif %}
+
+        {% if results or error %}
+        <table>
+            {% if error %}
+            <tr>
+                <td>{{ error }}</td>
+            </tr>
+            {% else %}
+            <tbody>
+            {% for domain in results %}
+            <tr>
+                <td><a href="/register/{{ domain }}">{{ domain }}</a></td>
+                {% if results[domain] %}
+                <td class="green">Available</td>
+                {% else %}
+                <td class="red">Taken</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+            </tbody>
+            {% endif %}
+        </table>
+        {% endif %}
+    </div>
+</div>
+
+<div class="content">
+    <h1>AirNIC</h1>
+    <p>AirNIC is the open registry for Amateur Radio internet services.</p>
+
+    <h3>Services</h3>
+    <p>AirNIC operates the <b>.air</b> and <b>.ham</b> TLDs on the OpenNIC alternative DNS root.</p>
+
+    <h3>TLDs</h3>
+    <ul>
+        <li>.air</li>
+        <li>.ham</li>
+    </ul>
+
+    <h3>OpenNIC Tier 2 Resolvers</h3>
+    <ul>
+        <li>ns4.ca.us.dns.opennic.glue (198.74.48.37)</li>
+        <li>ns12.ca.us.dns.opennic.glue (23.141.112.112, 2001:678:c4c::112)</li>
+    </ul>
+
+    <h3>Contact</h3>
+    <p><span class="email-protect">ten.cinria@ofni</span></p>
+
+    <footer>&copy; AirNIC 2020</footer>
+</div>
+
+</body>
+</html>

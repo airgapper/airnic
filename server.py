@@ -1,7 +1,7 @@
 from re import match
 
-from pymongo import MongoClient
 from flask import Flask, request, render_template
+from pymongo import MongoClient
 
 db = MongoClient("mongodb://localhost:27017")["airnic"]
 app = Flask(__name__)
@@ -57,7 +57,18 @@ def register(domain):
         if email is None or (match(regex_email, email) is None):
             return render_template("index.html", error=f"Email \"{email}\" is invalid.")
 
-        return "Done"
+        _exists = db["zones"].find({"zone": domain})
+        if _exists.count() != 0:
+            return render_template("index.html", error=f"Domain \"{domain}\" is taken.")
+
+        db["zones"].insert_one({
+            "zone": domain,
+            "email": email,
+            "nameservers": nameservers
+        })
+
+        # TODO: Push to DNS
+        return render_template("index.html", error=f"Thank you for registering {domain}. It has been pointed to your nameservers and will be live in a few seconds.")
 
 
 app.run(host="localhost", port=5000, debug=True)

@@ -1,6 +1,8 @@
 from re import match
+from time import time
 
 from flask import Flask, request, render_template
+from jinja2 import Template
 from pymongo import MongoClient
 
 db = MongoClient("mongodb://localhost:27017")["airnic"]
@@ -10,6 +12,9 @@ AIRNIC_TLDS = ["air", "ham"]
 
 regex_email = r"[^@]+@[^@]+\.[^@]+"
 regex_domain = r"(?=^.{4,253}$)(^((?!-)[a-zA-Z0-9-]{1,63}(?<!-)\.)+[a-zA-Z]{2,63}$)"
+
+with open("templates/tld.j2", "r") as tld_template_file:
+    tld_template = Template(tld_template_file.read())
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -67,7 +72,12 @@ def register(domain):
             "nameservers": nameservers
         })
 
-        # TODO: Push to DNS
+        # Update the zone file
+        tld = domain.split(".")[-1]
+        zones = db["zones"].find({"zone": {"$regex": tld + "$"}})
+        with open("db." + tld, "w") as zone_file:
+            zone_file.write(tld_template.render(zones=zones, serial=str(int(time()))))
+
         return render_template("index.html", error=f"Thank you for registering {domain}. It has been pointed to your nameservers and will be live in a few seconds.")
 
 

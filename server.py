@@ -45,7 +45,7 @@ def index():
 @app.route("/register/<domain>", methods=["GET", "POST"])
 def register(domain):
     if not ("." in domain and domain.endswith(tuple(AIRNIC_TLDS))):
-        return render_template("register.html", error="This is an error")
+        return render_template("register.html", error="Invalid domain")
 
     if request.method == "GET":
         return render_template("index.html", register=domain)
